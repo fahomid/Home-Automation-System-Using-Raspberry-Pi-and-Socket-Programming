@@ -1,5 +1,5 @@
 # Home Automation System Using Raspberry Pi and Socket Programming
-  I built the complete Home automation system from scratch. It was for my "Advanced Topic in Programming Language 3" course. I used NodeJs and socket programming. In client site Python was used to connect the Pi with server. 
+  I built the complete Home automation system from scratch. It was for my "Advanced Topic in Programming Language 3" course. I used NodeJs and socket programming. In client site Python was used to connect the Pi with server. The whole project followed MVC framework!
  
  # Requirements
   1. Raspberry Pi 3 Model B
