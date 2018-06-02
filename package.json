@@ -1,0 +1,23 @@
+{
+  "name": "home_automation",
+  "version": "1.0.0",
+  "description": "Home automation system",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "author": "Fahomid Hassan",
+  "license": "ISC",
+  "dependencies": {
+    "async-validation": "^0.1.0",
+    "bcrypt": "^1.0.3",
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "mysql": "^2.15.0",
+    "randomstring": "^1.1.5",
+    "sha1": "^1.1.1"
+  }
+}

@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="">
+
+	<title>Dashboard</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- Custom styles for this template -->
+	<link href="/css/main.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+<div class="main">
+    <div class="bg_wait" style="display: none;"></div>
+    <header class="header clearfix">
+        <nav class="navbar navbar-light bg-light">
+            <a class="navbar-brand" href="/home">
+                <img src="img/logo.png" alt="">
+            </a>
+            <ul class="nav nav-pills">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle user_name" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><%= firstName +" "+ lastName %></a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item profile_btn_click" href="#">Profile</a>
+                        <a class="dropdown-item profile_btn_click" href="#">Change Password</a>
+                        <div role="separator" class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/logout">Logout</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container-fluid main_container">
+        <div class="row data-row no-gutters">
+            <div class="col-md-3 left_side_content">
+                <ul class="side_bar">
+                    <li id="manage_iot_devices" class="active">Manage IoT Devices</li>
+                    <li id="manage_profile">Manage Profile</li>
+                    <li id="update_device_settings">Update Device Settings</li>
+                </ul>
+            </div>
+            <div class="col-md-9 right_side_content">
+                <div class="row no-gutters">
+                    <div id="manage_devices">
+                        <div class="devices_continer clearfix">
+                            <div class="devices_nav_container">
+                                <span><strong>Devices : </strong></span>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-outline-info dropdown-toggle device_selector" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Select Device From List
+                                    </button>
+                                    <div class="dropdown-menu deviceSelectionDpDn">
+                                        <% if(devices !== null && devices.length > 0) {
+                                            for(var i = 0; i < devices.length; i++) {
+                                        %>
+                                        <a class="dropdown-item" data-device-id="<%= devices[i].id %>" href="#"><%= devices[i].device_name %></a>
+                                        <%
+                                            }
+                                        } else { %>
+                                        <a class="dropdown-item" href="#">No device found</a>
+                                        <%
+                                        }
+                                        %>
+                                    </div>
+                                </div>
+                                <div class="online_status" style="display: none;"></div>
+                                <div class="btn-group addRemoveBtn">
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#add_new_device">
+                                        Add New Device
+                                    </button>
+                                    <button type="button" class="btn btn-danger remove_device_btn" data-toggle="modal" data-target="#remove_device" style="display: none;">
+                                        Remove Selected Device
+                                    </button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="data_container" style="display: none;">
+                                <div id="device_notifications" class="alert" role="alert" style="display: none;"></div>
+                                <div class="table-responsive">
+                                    <table id="switch_table" class="table table-bordered">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Switch Name</th>
+                                                <th scope="col" class="text-center">Status</th>
+                                                <th scope="col" class="text-center">Options</th>
+                                            </tr>
+                                        </thead>
+<!--                                        <tfoot class="switch_list_footer">
+                                            <tr>
+                                                <td colspan="2" class="text-center">
+                                                    <button class="btn btn-success turn_on_all" data-toggle="modal" data-target="#confirmTurnOn">Turn All On</button>
+                                                </td>
+                                                <td colspan="2" class="text-center">
+                                                    <button class="btn btn-danger turn_off_all" data-toggle="modal" data-target="#confirmTurnOff">Turn All Off</button>
+                                                </td>
+                                            </tr>
+                                        </tfoot>-->
+                                        <tbody class="switch_table_list"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="deviceNotSelectedInitMsg">
+                                <div class="col"><b>Please select a device from the device list first!</b></div>
+                            </div>
+                            <div class="modal fade" id="add_new_device" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Add new device</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="alert alert-success add_device_notification_success" style="display: none;">
+                                                <h2 class="alert-heading">Device added successfully!</h2>
+                                                <p>You have added your device successfully! Now all you have to do is connect it with our server to control it over internet!</p>
+                                                <hr>
+                                                <p class="mb-0">To connect your device with the server use
+                                                    <br>Server IP: 128.199.47.47
+                                                    <br>Port: 8000
+                                                    <br>ID: <span class="new_device_id font-weight-bold"></span>
+                                                    <br>
+                                                    Token: (The password your entered for your device)</p></div>
+                                            <form class="add_device_form">
+                                                <div class="alert alert-danger add_device_notification" style="display: none;"></div>
+                                                <div class="form-group">
+                                                    <label for="device_name">Device Name</label>
+                                                    <input type="text" class="form-control" id="device_name" placeholder="Enter Your Device Name">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="device_password">Device Password</label>
+                                                    <input type="password" class="form-control" id="device_password" placeholder="Password">
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary" id="add_new_device_confirm">Add New Device</button>
+                                            <button type="button" class="btn btn-primary" id="add_another_new_device" style="display:none;">Add Another</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modules for devices -->
+                        <div class="modal fade" id="confirmTurnOn" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Turn on all the switches?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">This will turn on all the available switches.</div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="turnOnAllConfirmed" data-dismiss="modal">Turn On All</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modules for change device group -->
+                        <div class="modal fade" id="change_switch_group" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Change switch group?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Group Name * </label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="group_name" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="doGroupChange" data-dismiss="modal">Change Group</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="remove_device" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header remove_device_info_header">
+                                        <h5 class="modal-title">Are you sure?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="alert remove_device_info_alert" style="display: none;"></div>
+                                    <div class="modal-body remove_device_info_body">You want to remove &ldquo;<span class="selected_device_remove"></span>&rdquo; from your device list?
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <p class="alert-warning"><strong>Warning!</strong> You can not undo this action!</p>
+                                    </div>
+                                    <div class="modal-footer remove_device_footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                        <button type="button" class="btn btn-primary" id="remove_selected_device">Yes, remove this device</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="confirmTurnOff" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Turn off all the switches?</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">This will turn off all the available switches.</div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="turnOffAllConfirmed" data-dismiss="modal">Turn Off All</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Update Start -->
+                    <div id="manage_profile_container" style="display: none;">
+                        <div class="container-fluid">
+                            <form id="update_profile_details">
+                                <h4>Update Your Profile</h4>
+                                <small class="form-text text-muted">
+                                    Fields marked with (*) are mandatory.
+                                </small>
+                                <hr>
+                                <div class="update_profile_alert alert alert-success" style="display: none;"></div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Name * </label>
+                                    <div class="col-sm-5">
+                                        <input type="text" class="form-control" id="firstNameUpdate" placeholder="First Name" value="<%= firstName %>" required>
+                                    </div>
+                                     <div class="col-sm-5">
+                                            <input type="text" class="form-control" id="lastNameUpdate" placeholder="Last Name" value="<%= lastName %>" required>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="form-group row">
+                                    <label for="newEmail" class="col-sm-2 col-form-label">Email *</label>
+                                    <div class="col-sm-10">
+                                        <input type="email" class="form-control" id="newEmail" placeholder="Email Address" value="<%= email %>" required>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="form-group row">
+                                    <label for="currentPassword" class="col-sm-2 col-form-label">Password *</label>
+                                    <div class="col-sm-10">
+                                        <input type="password" class="form-control" id="currentPassword" placeholder="Password" required>
+                                        <small class="form-text text-muted alert-warning">
+                                            You must enter current password to update any information!
+                                        </small>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">New Password</label>
+                                    <div class="col-sm-10">
+                                        <div class="row">
+                                            <div class="col-sm-5">
+                                                <input type="password" class="form-control" id="newPassword" placeholder="New Password">
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <input type="password" class="form-control" id="reNewPassword" placeholder="Confirm New Password">
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted alert-info">
+                                            Enter only if you want to update your password!
+                                        </small>
+                                    </div>
+                                </div>
+                                <hr>
+                                <button type="submit" class="btn btn-primary">Update Profile</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Profile update end -->
+
+                    <!-- Device Setting start -->
+                    <div id="manage_devices_settings" style="display: none;">
+                        <div class="container-fluid">
+                            <div class="device_setting_container">
+                                <h4>Update Device Settings</h4>
+                                <small class="form-text text-muted">
+                                    Configure your device settings.
+                                </small>
+                                <hr>
+                                <div id="device_setting_notifications" class="alert" role="alert" style="display: none;"></div>
+                                <div class="table-responsive">
+                                    <table id="device_settings_list" class="table table-bordered">
+                                        <thead class="thead-dark">
+                                        <tr>
+                                            <th scope="col">ID #</th>
+                                            <th scope="col">Device Name</th>
+                                            <th scope="col" class="text-center">Status</th>
+                                            <th scope="col" class="text-center">Change Setting</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="device_settings_list_table"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="change_device_setting_modal" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Basic Settings<span class="modal_device_name"></span></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form class="change_device_setting">
+                                            <div class="alert alert-danger device_setting_notification" style="display: none;"></div>
+                                            <div class="form-group">
+                                                <label for="setting_device_name">Device Name</label>
+                                                <input type="text" class="form-control" id="setting_device_name" placeholder="Enter Your Device Name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="setting_device_password">Device Password</label>
+                                                <input type="password" class="form-control" id="setting_device_password" placeholder="Password">
+                                            </div>
+                                            <input id="setting_device_id" type="hidden">
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary save_device_setting_confirm">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Device setting end -->
+
+                    <div class="modal fade" id="share_device_with_friend" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Share Your Device With Friends<span class="modal_device_name"></span></h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="friend_email">Device Name</label>
+                                        <input type="text" class="form-control" id="friend_email" placeholder="Enter Your Friend's email">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary share_device_confirm">Share Device</button>
+                                </div>
+                            </div>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p class="text-muted">&copy; 2018 <a href="https://www.fahomid.com/">Fahomid Hassan</a></p>
+    </footer>
+</div>
+</div>
+<!-- Modules for showing notifications-->
+<div class="modal fade" id="show_notification" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="alert">
+                        <p id="report_notification"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modules for showing notifications-->
+<div class="modal fade" id="device_access_modify" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table thead-dark">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Email</th>
+                            <th>Option</th>
+                        </tr>
+                        </thead>
+                        <tbody class="device_access_list">
+                        <tr>
+                            <td colspan="3">Nothing found!</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modules for showing notifications-->
+<div class="modal fade" id="scheduling_task"  tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Schedule Turn Off Switch</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="offTime" class="col-md-12 col-form-label">Enter Schedule Off Time *</label>
+                <div class="col-md-12">
+                    <input type="text" class="form-control" id="offTime" placeholder="" required>
+                    <small class="form-text text-muted alert-warning">
+                        Enter the exact schedule datetime for your particular switch!
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary setScheduleBtn">Set Schedule</button>
+            </div>
+        </div>
+    </div>
+</div>
+	<script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/moment.min.js"></script>
+    <script src="/js/daterangepicker.js"></script>
+	<script src="/js/popper.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/script.js"></script>
+</body>
+</html>
